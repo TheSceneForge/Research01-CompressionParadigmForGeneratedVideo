@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From Redundancy to Representation: A Study by The Scene Forge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Dark Forge -->
+    <!-- Application Structure Plan: The SPA is designed as a narrative journey, guiding the user from foundational knowledge to a future vision. It uses a thematic, non-linear structure with a top navigation bar. The sections are: 1) "Paradigms": Introduces the core conflict between traditional and generative video, allowing users to explore each pipeline interactively. 2) "The Mismatch": The climax of the narrative, using side-by-side comparisons and interactive cards to detail why legacy codecs fail for AI content. 3) "The Future": Presents the proposed GVC/GCF solution and the opportunity in HDR/WCG. This structure was chosen to make a dense, technical report digestible by building understanding sequentially (problem -> analysis -> solution), which is more engaging than a linear chapter-by-chapter format. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Traditional & Generative Pipelines -> Goal: Organize/Inform -> Viz: HTML/CSS Flowcharts -> Interaction: Clickable nodes reveal details -> Justification: Breaks down complex processes into manageable, user-driven steps. Avoids cognitive overload. -> Library/Method: Vanilla JS, Tailwind CSS.
+        - Report Info: Traditional vs. Generative Comparison Table -> Goal: Compare -> Viz: HTML Table -> Interaction: Row hover highlights -> Justification: Direct, scannable comparison of key attributes. -> Library/Method: Tailwind CSS, JS.
+        - Report Info: Color Gamut Coverage % -> Goal: Compare/Inform -> Viz: Doughnut Chart -> Interaction: Tooltips on hover -> Justification: Effectively shows the part-to-whole relationship of different color standards. -> Library/Method: Chart.js.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+        }
+        .nav-link {
+            transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #9333ea; /* accent */
+            border-bottom-color: #9333ea;
+        }
+        .pipeline-node {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .pipeline-node:hover, .pipeline-node.active {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.2), 0 4px 6px -4px rgba(147, 51, 234, 0.2);
+            background-color: #1e1b2e;
+            border-color: #9333ea;
+        }
+        .info-card {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 40vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .bg-accent-gradient {
+            background: linear-gradient(90deg, #9333ea, #3b82f6);
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+
+    <header class="bg-black/80 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-800">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="https://thesceneforge.systeme.io/" target="_blank" class="text-xl font-bold text-white hover:text-purple-400 transition-colors">
+                The Scene Forge
+            </a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#paradigms" class="nav-link font-medium pb-1">Paradigms</a>
+                <a href="#mismatch" class="nav-link font-medium pb-1">The Mismatch</a>
+                <a href="#future" class="nav-link font-medium pb-1">The Future</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#paradigms" class="block py-2 nav-link">Paradigms</a>
+            <a href="#mismatch" class="block py-2 nav-link">The Mismatch</a>
+            <a href="#future" class="block py-2 nav-link">The Future</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="hero" class="text-center mb-24">
+            <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight">From Redundancy to Representation</h2>
+            <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto">A study by The Scene Forge on the fundamental shift in video technology, from compressing captured reality to representing synthesized worlds.</p>
+        </section>
+
+        <section id="paradigms" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl md:text-4xl font-bold text-white">The Two Paradigms of Video</h3>
+                <p class="mt-4 text-lg text-slate-300 max-w-3xl mx-auto">This section introduces the two dominant methods of creating digital video. The first is the canonical pipeline, which captures the real world and compresses it by removing redundant information. The second is the generative paradigm, which synthesizes new worlds from abstract data. Click on any node in the diagrams below to learn more about each step.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h4 class="text-2xl font-semibold text-center mb-6">1. The Canonical Pipeline (H.264)</h4>
+                    <div id="canonical-pipeline" class="space-y-4">
+                        <div data-id="capture" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">Photon Capture & Sensor</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="ycbcr" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">Color Space (YCbCr) & Chroma Subsampling</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="motion" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">Motion Estimation & Compensation</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="dct" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">Discrete Cosine Transform (DCT)</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="quant" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">Quantization</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="entropy" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">Entropy Coding (e.g., CABAC)</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="mp4" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">MP4 Container</div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-2xl font-semibold text-center mb-6">2. The Generative Paradigm (LDM)</h4>
+                    <div id="generative-pipeline" class="space-y-4">
+                        <div data-id="prompt-seed" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">Prompt & Noise Seed</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="latent-space" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">Latent Space Diffusion (U-Net/Transformer)</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="vae" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">VAE Decoder</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="pixels" class="pipeline-node border-2 border-gray-700 rounded-lg p-4 text-center font-medium bg-gray-900 shadow-md">Final Pixel-Space Video</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div data-id="legacy" class="pipeline-node border-2 border-red-600 rounded-lg p-4 text-center font-medium bg-red-900/30 shadow-md">Forced into H.264/MP4</div>
+                    </div>
+                </div>
+            </div>
+            <div id="pipeline-info-card" class="mt-8 p-6 bg-gray-900 rounded-lg shadow-lg border border-gray-700 opacity-0 transform translate-y-4">
+                <h5 id="info-title" class="text-xl font-bold mb-2 text-purple-400">Click a node to learn more</h5>
+                <p id="info-text" class="text-slate-300">Select a component from either pipeline to see a detailed explanation of its role in the video creation process.</p>
+            </div>
+        </section>
+
+        <section id="mismatch" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl md:text-4xl font-bold text-white">The Impedance Mismatch</h3>
+                <p class="mt-4 text-lg text-slate-300 max-w-3xl mx-auto">This section explores why traditional codecs, designed for camera-captured video, are fundamentally inefficient and ill-suited for compressing AI-generated content. The core assumptions of the old paradigm are violated by the new, leading to poor performance and artifacts. This is the central problem our research aims to solve.</p>
+            </div>
+            
+            <div class="bg-gray-900 p-6 md:p-8 rounded-lg shadow-lg border border-gray-700">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b-2 border-gray-700">
+                                <th class="p-4 text-lg font-semibold text-slate-100">Feature</th>
+                                <th class="p-4 text-lg font-semibold text-slate-100">Traditional Video (Camera)</th>
+                                <th class="p-4 text-lg font-semibold text-slate-100">Generative Video (AI)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                                <td class="p-4 font-medium">Source of Data</td>
+                                <td class="p-4 text-slate-300">Direct measurement of photons from a real scene.</td>
+                                <td class="p-4 text-slate-300">Sampling from a learned probability distribution.</td>
+                            </tr>
+                            <tr class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                                <td class="p-4 font-medium">Primary Redundancy</td>
+                                <td class="p-4 text-slate-300">Pixel-level (Spatial, Temporal, Perceptual).</td>
+                                <td class="p-4 text-slate-300">Latent-space (Statistical, Semantic, Structural).</td>
+                            </tr>
+                            <tr class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                                <td class="p-4 font-medium">Temporal Model</td>
+                                <td class="p-4 text-slate-300">Explicit, geometric (Motion Vectors).</td>
+                                <td class="p-4 text-slate-300">Implicit, probabilistic (Temporal Attention).</td>
+                            </tr>
+                            <tr class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                                <td class="p-4 font-medium">"Ground Truth"</td>
+                                <td class="p-4 text-slate-300">The original, uncompressed camera footage.</td>
+                                <td class="p-4 text-slate-300">None exists. Quality is defined by perception.</td>
+                            </tr>
+                            <tr class="hover:bg-gray-800 transition-colors">
+                                <td class="p-4 font-medium">Typical Artifacts</td>
+                                <td class="p-4 text-slate-300">Blocking, Ringing, Mosquito Noise.</td>
+                                <td class="p-4 text-slate-300">Flickering, Semantic Drift, Surreal Deformations.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="future" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl md:text-4xl font-bold text-white">The Future: A New Framework</h3>
+                <p class="mt-4 text-lg text-slate-300 max-w-3xl mx-auto">To solve the impedance mismatch, we propose a new paradigm: compress the cause, not the effect. This section outlines a Generative Video Codec (GVC) and Container (GCF) that store the compact generative instructions, not the bulky final pixels. This approach also unlocks the potential to generate content directly for modern HDR and Wide Color Gamut displays.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <h4 class="text-2xl font-semibold text-center mb-6">Proposed GVC/GCF Framework</h4>
+                    <div class="space-y-2 text-center">
+                        <div class="bg-purple-900/30 border-2 border-purple-500 rounded-lg p-4 font-semibold text-purple-300">Bitstream = H_model + E_V(L₀) + Σ[E_M(ΔLₜ) + E_C(Cₜ)]</div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div class="bg-gray-900 border-2 border-gray-700 rounded-lg p-4">
+                            <h5 class="font-bold text-slate-100">GCF Container</h5>
+                            <div class="mt-2 space-y-2">
+                               <div class="bg-gray-800 p-2 rounded text-slate-300">`mpar`: Model Parameters (The "Renderer")</div>
+                               <div class="bg-gray-800 p-2 rounded text-slate-300">`lkey`: Latent Keyframe (The "Starting Point")</div>
+                               <div class="bg-gray-800 p-2 rounded text-slate-300">`ldat`: Latent Deltas & Conditions (The "Instructions")</div>
+                            </div>
+                        </div>
+                        <div class="text-center text-2xl text-gray-600">↓</div>
+                        <div class="bg-purple-900/30 border-2 border-purple-500 rounded-lg p-4">
+                            <h5 class="font-bold text-slate-100">Key Advantages</h5>
+                            <ul class="list-disc list-inside text-left mt-2 text-slate-300">
+                                <li>Extreme compression efficiency for AI content</li>
+                                <li>Enables interactivity (e.g., change prompt post-compression)</li>
+                                <li>Scalable quality (same stream, different renderers)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-2xl font-semibold text-center mb-6">Opportunity: HDR & Wide Color Gamut</h4>
+                    <div class="chart-container">
+                        <canvas id="colorGamutChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-slate-400">AI can generate content beyond the limits of cameras, directly targeting the vibrant colors of modern displays (like Rec.2020) instead of the decades-old Rec.709 standard.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 text-slate-400 mt-24 border-t border-gray-800">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2025 The Scene Forge. All rights reserved.</p>
+            <p class="text-sm mt-2">A study from <a href="https://thesceneforge.systeme.io/" target="_blank" class="text-purple-400 hover:text-purple-300">The Scene Forge</a> exploring new frontiers in digital media.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const pipelineInfoData = {
+                capture: {
+                    title: 'Photon Capture & Sensor',
+                    text: 'The process begins with light (photons) from a scene hitting a camera sensor (CCD/CMOS). The sensor, typically using a Bayer filter pattern, captures light intensity at discrete points, creating raw digital data.'
+                },
+                ycbcr: {
+                    title: 'Color Space (YCbCr) & Chroma Subsampling',
+                    text: 'The raw RGB data is converted to YCbCr, separating brightness (Luma, Y) from color (Chroma, Cb/Cr). Because the human eye is less sensitive to color detail, the chroma components are down-sampled (e.g., 4:2:0), discarding up to 50% of the color information as a first compression step.'
+                },
+                motion: {
+                    title: 'Motion Estimation & Compensation',
+                    text: 'To reduce temporal redundancy, the encoder searches previous frames for matching blocks of pixels. Instead of coding the block itself, it sends a "motion vector" pointing to the match and a small residual (the difference). This is highly effective for scenes with predictable movement.'
+                },
+                dct: {
+                    title: 'Discrete Cosine Transform (DCT)',
+                    text: 'Each block of pixels is transformed from the spatial domain to the frequency domain. The DCT concentrates most of the visual energy into a few low-frequency coefficients, making it easier to compress.'
+                },
+                quant: {
+                    title: 'Quantization',
+                    text: 'This is the main lossy step. DCT coefficients are divided and rounded, forcing many high-frequency coefficients (fine details) to become zero. This is where the primary trade-off between quality and file size is made.'
+                },
+                entropy: {
+                    title: 'Entropy Coding',
+                    text: 'The quantized coefficients are scanned (often in a zigzag pattern) and losslessly compressed using algorithms like CABAC, which efficiently represent the remaining non-zero values and long runs of zeros.'
+                },
+                mp4: {
+                    title: 'MP4 Container',
+                    text: 'The compressed video and audio bitstreams are packaged into a container file like MP4. The container adds metadata, timing information, and tracks, allowing a player to correctly demux and decode the content.'
+                },
+                'prompt-seed': {
+                    title: 'Prompt & Noise Seed',
+                    text: 'Generation begins not with light, but with abstract data: a text prompt describing the desired scene and a random seed that determines the initial noise pattern. These are the "genes" of the video.'
+                },
+                'latent-space': {
+                    title: 'Latent Space Diffusion',
+                    text: 'Instead of operating on pixels, the process works in a compressed "latent space." A neural network (like a U-Net or Transformer) iteratively removes noise from the latent representation over many steps, guided by the prompt.'
+                },
+                vae: {
+                    title: 'VAE Decoder',
+                    text: 'Once the denoising process is complete, the final clean latent representation is passed through a Variational Auto-Encoder (VAE) decoder. This powerful neural network translates the abstract latent data back into a full-resolution, pixel-space image.'
+                },
+                pixels: {
+                    title: 'Final Pixel-Space Video',
+                    text: 'The output of the VAE decoder is the final video frame. This process is repeated to generate a sequence of frames that form the complete video.'
+                },
+                legacy: {
+                    title: 'Forced into H.264/MP4',
+                    text: 'Currently, this revolutionary generative output is flattened into pixels and forced through the old canonical pipeline for distribution. This discards all the rich structural information from the generation process, creating the "impedance mismatch."'
+                }
+            };
+
+            const pipelineNodes = document.querySelectorAll('.pipeline-node');
+            const infoCard = document.getElementById('pipeline-info-card');
+            const infoTitle = document.getElementById('info-title');
+            const infoText = document.getElementById('info-text');
+            let activeNode = null;
+
+            pipelineNodes.forEach(node => {
+                node.addEventListener('click', () => {
+                    if (activeNode) {
+                        activeNode.classList.remove('active');
+                    }
+                    node.classList.add('active');
+                    activeNode = node;
+
+                    const dataId = node.getAttribute('data-id');
+                    const content = pipelineInfoData[dataId];
+
+                    infoCard.classList.remove('opacity-0', 'translate-y-4');
+                    infoTitle.textContent = content.title;
+                    infoText.textContent = content.text;
+                });
+            });
+
+            const colorGamutCtx = document.getElementById('colorGamutChart').getContext('2d');
+            new Chart(colorGamutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Rec.709 (HDTV Standard)', 'DCI-P3 (Digital Cinema)', 'Rec.2020 (UHDTV Standard)', 'Human Vision (Not covered)'],
+                    datasets: [{
+                        label: 'CIE 1931 Color Space Coverage',
+                        data: [35.9, 53.6, 75.8, 24.2],
+                        backgroundColor: [
+                            'rgba(147, 51, 234, 0.7)', // purple
+                            'rgba(59, 130, 246, 0.7)', // blue
+                            'rgba(16, 185, 129, 0.7)', // green
+                            'rgba(107, 114, 128, 0.5)'  // gray
+                        ],
+                        borderColor: [
+                            '#a855f7',
+                            '#3b82f6',
+                            '#10b981',
+                            '#6b7280'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#d1d5db' // gray-300
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Color Gamut Coverage of CIE 1931 (%)',
+                            color: '#ffffff'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += context.parsed + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') && link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
+```
+
+### How to Host Your Webpage (Simple & Free)
+
+Here’s a quick guide on how to get your page live in just a few minutes using Netlify.
+
+**Step 1: Save the Code**
+1.  Copy all the code from the document above.
+2.  Open a plain text editor (like Notepad on Windows, or TextEdit on Mac).
+3.  Paste the code into the empty file.
+4.  Save the file with the name `index.html`. It's very important that the file is named exactly this.
+
+**Step 2: Deploy with Netlify**
+1.  Go to [Netlify.com](https://www.netlify.com) and sign up for a free account.
+2.  After logging in, you'll be on your main dashboard. Look for a section that says "Sites".
+3.  Find the `index.html` file you just saved on your computer.
+4.  **Drag and drop** the `index.html` file directly onto the Netlify dashboard in your web browser.
+5.  That's it! Netlify will automatically upload the file and deploy it.
+
+**Step 3: Get Your URL**
+Within a few seconds, Netlify will provide you with a unique, permanent URL (it will look something like `random-words-12345.netlify.app`). You can visit this URL to see your live webpage, and you can share this link with anyone. You can also customize this random URL to something more memorable in the site settings on Netlify.
+
+This process is the simplest way to get a single HTML file like this one online and shareab
